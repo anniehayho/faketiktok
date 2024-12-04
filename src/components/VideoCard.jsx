@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import FooterLeft from './FooterLeft';
 import FooterRight from './FooterRight';
-import VideoInfo from './VideoInfo';
 import './VideoCard.css';
 
 const VideoCard = (props) => {
