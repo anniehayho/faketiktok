@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePlus, faCircleCheck, faHeart, faCommentDots, faBookmark, faShare, faVolumeMute, faVolumeUp } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleCheck, faHeart, faCommentDots, faBookmark, faShare, faVolumeMute, faVolumeUp, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './FooterRight.css';
 
 function FooterRight({ likes, comments, saves, shares, profilePic, isMuted, toggleMute }) {
@@ -9,6 +9,7 @@ function FooterRight({ likes, comments, saves, shares, profilePic, isMuted, togg
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [userAddIcon, setUserAddIcon] = useState(faCirclePlus);
+  const [showSharePopup, setShowSharePopup] = useState(false);
 
   const handleUserAddClick = () => {
     setUserAddIcon(faCircleCheck);
@@ -50,6 +51,55 @@ function FooterRight({ likes, comments, saves, shares, profilePic, isMuted, togg
     setSaved(!saved);
   }
 
+  const handleShareClick = () => {
+    console.log('Opening share popup');
+    setShowSharePopup(true);
+  };
+
+  const handleClosePopup = () => {
+    console.log('Closing share popup');
+    setShowSharePopup(false);
+  };
+
+  const SharePopup = ({ onClose }) => {
+    const handleClose = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onClose();
+    };
+
+    return (
+      <>
+        <div className="overlay" onClick={handleClose} />
+        <div className="share-popup">
+          <div className="share-popup-header">
+              <h3>Share to</h3>
+              <FontAwesomeIcon 
+                icon={faTimes} 
+                onClick={handleClose}
+                style={{ cursor: 'pointer', padding: '8px' }}
+              />
+            <div className="share-popup-divider" />
+          </div>
+          <div className="share-options">
+            <div className="share-option">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png" alt="Facebook" />
+              <span>Facebook</span>
+            </div>
+            <div className="share-option">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png" alt="Instagram" />
+              <span>Instagram</span>
+            </div>
+            <div className="share-option">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Threads_Logo.webp" alt="Threads" />
+              <span>Threads</span>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className='footer-right'>
       <div className='sidebar-icon'>
@@ -75,7 +125,7 @@ function FooterRight({ likes, comments, saves, shares, profilePic, isMuted, togg
         <p>{saved ? saves + 1 : saves}</p>
       </div>
       <div className='sidebar-icon'>
-        <FontAwesomeIcon icon={faShare} style={{ width: '35px', height: '35px', color:'white' }} />
+        <FontAwesomeIcon icon={faShare} style={{ width: '35px', height: '35px', color:'white' }} onClick={handleShareClick} />
         <p>{shares}</p>
       </div>
       <div className='sidebar-icon'>
@@ -84,6 +134,7 @@ function FooterRight({ likes, comments, saves, shares, profilePic, isMuted, togg
       <div className='sidebar-icon record'>
         <img src='https://static.thenounproject.com/png/934821-200.png' alt='Record icon'></img>
       </div>
+      {showSharePopup && <SharePopup onClose={handleClosePopup} />}
     </div>
   );
 }
