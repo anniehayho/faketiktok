@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './App.css';
 import VideoCard from './components/VideoCard';
 import BottomNavbar from './components/BottomNavbar';
@@ -55,50 +55,65 @@ const videoUrls = [
 function App() {
   const [videos, setVideos] = useState([]);
   const [filteredVideos, setFilteredVideos] = useState([]);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [showVideoInfo, setShowVideoInfo] = useState(false);
   const videoRefs = useRef([]);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     setVideos(videoUrls);
-    setFilteredVideos(videoUrls); // Initialize filtered videos
+    setFilteredVideos(videoUrls);
   }, []);
 
   const handleSearch = (term) => {
     const filtered = videos.filter(video => 
-      video.description.includes(term) || 
-      video.username.includes(term) // Adjust this to your needs
+      video.description.toLowerCase().includes(term.toLowerCase()) || 
+      video.username.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredVideos(filtered);
   };
 
-  // This function handles the reference of each video
   const handleVideoRef = (index) => (ref) => {
     videoRefs.current[index] = ref;
   };
 
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if(e.key === 'ArrowRight') {
-        // Handle right arrow key press
+      if (e.key === 'ArrowRight') {
+        setShowVideoInfo(true);
+      } else if (e.key === 'ArrowLeft') {
+        setShowVideoInfo(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  });
+  }, []);
 
-  const handleScroll = () => {
-    // Handle scroll event
-  };
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return;
+    
+    const container = containerRef.current;
+    const scrollPosition = container.scrollTop;
+    const videoHeight = container.clientHeight;
+    
+    const newIndex = Math.round(scrollPosition / videoHeight);
+    if (newIndex !== currentVideoIndex) {
+      setCurrentVideoIndex(newIndex);
+    }
+  }, [currentVideoIndex]);
 
   useEffect(() => {
-    const container = document.querySelector('.container');
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, [handleScroll]);
 
   return (
     <div className="app">
-      <div className="container">
+      <div className="container" ref={containerRef}>
         <TopNavbar onSearch={handleSearch} />
         {filteredVideos.map((video, index) => (
           <VideoCard
@@ -113,7 +128,8 @@ function App() {
             url={video.url}
             profilePic={video.profilePic}
             setVideoRef={handleVideoRef(index)}
-            autoplay={index === 0}
+            autoplay={index === currentVideoIndex}
+            showInfo={showVideoInfo && index === currentVideoIndex}
           />
         ))}
         <BottomNavbar className="bottom-navbar" />
