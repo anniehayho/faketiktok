@@ -204,3 +204,30 @@ html {
   background-color: rgba(0, 0, 0, 0.7);
   z-index: 999;
 }
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-bar .icon {
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.search-input {
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #000;
+}

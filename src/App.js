@@ -54,45 +54,21 @@ const videoUrls = [
 
 function App() {
   const [videos, setVideos] = useState([]);
+  const [filteredVideos, setFilteredVideos] = useState([]);
   const videoRefs = useRef([]);
-  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
     setVideos(videoUrls);
+    setFilteredVideos(videoUrls); // Initialize filtered videos
   }, []);
 
-  useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.8, // Adjust this value to change the scroll trigger point
-    };
-
-    // This function handles the intersection of videos
-    const handleIntersection = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const videoElement = entry.target;
-          videoElement.play();
-        } else {
-          const videoElement = entry.target;
-          videoElement.pause();
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersection, observerOptions);
-
-    // We observe each video reference to trigger play/pause
-    videoRefs.current.forEach((videoRef) => {
-      observer.observe(videoRef);
-    });
-
-    // We disconnect the observer when the component is unmounted
-    return () => {
-      observer.disconnect();
-    };
-  }, [videos]);
+  const handleSearch = (term) => {
+    const filtered = videos.filter(video => 
+      video.description.includes(term) || 
+      video.username.includes(term) // Adjust this to your needs
+    );
+    setFilteredVideos(filtered);
+  };
 
   // This function handles the reference of each video
   const handleVideoRef = (index) => (ref) => {
@@ -102,19 +78,17 @@ function App() {
   useEffect(() => {
     const handleKeyPress = (e) => {
       if(e.key === 'ArrowRight') {
-        setShowInfo(true);
-        setTimeout(() => setShowInfo(false), 3000);
+        // Handle right arrow key press
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  })
+  });
 
   const handleScroll = () => {
-    setShowInfo(true);
-    setTimeout(() => setShowInfo(false), 3000);
-  }
+    // Handle scroll event
+  };
 
   useEffect(() => {
     const container = document.querySelector('.container');
@@ -125,9 +99,8 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <TopNavbar className="top-navbar" />
-        {/* Here we map over the videos array and create VideoCard components */}
-        {videos.map((video, index) => (
+        <TopNavbar onSearch={handleSearch} />
+        {filteredVideos.map((video, index) => (
           <VideoCard
             key={index}
             username={video.username}
@@ -143,12 +116,10 @@ function App() {
             autoplay={index === 0}
           />
         ))}
-
         <BottomNavbar className="bottom-navbar" />
       </div>
     </div>
   );
-  
 }
 
 export default App;
